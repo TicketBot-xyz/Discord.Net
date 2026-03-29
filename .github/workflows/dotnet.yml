@@ -132,3 +132,7 @@ jobs:
         - name: Push Release
           if: env.IsTagBuild == 'true' && vars.PUSH_NUGET == 'true'
           run: nuget push "${{ env.ArtifactStagingDirectory }}/*.nupkg" -SkipDuplicate -Source https://api.nuget.org/v3/index.json
+
+        - name: Push Release to GitHub Packages
+          if: env.IsTagBuild == 'true'
+          run: nuget push "${{ env.ArtifactStagingDirectory }}/*.nupkg" -SkipDuplicate -Source ${{ env.REPOSITORY_URL }}

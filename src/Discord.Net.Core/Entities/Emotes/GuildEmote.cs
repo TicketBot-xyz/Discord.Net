@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Discord
 {
@@ -34,7 +35,7 @@ namespace Discord
         ///     Gets the user ID associated with the creation of this emoji.
         /// </summary>
         /// <returns>
-        ///     An <see cref="ulong"/> snowflake identifier representing the user who created this emoji; 
+        ///     An <see cref="ulong"/> snowflake identifier representing the user who created this emoji;
         ///     <see langword="null" /> if unknown.
         /// </returns>
         public ulong? CreatorId { get; }
@@ -52,6 +53,24 @@ namespace Discord
             CreatorId = userId;
             IsAvailable = isAvailable;
         }
+
+        /// <inheritdoc />
+        public override bool Equals(object other)
+        {
+            if (other is not GuildEmote emote)
+                return base.Equals(other);
+
+            return Id == emote.Id
+                && Name == emote.Name
+                && Animated == emote.Animated
+                && IsManaged == emote.IsManaged
+                && RequireColons == emote.RequireColons
+                && IsAvailable == emote.IsAvailable
+                && RoleIds.SequenceEqual(emote.RoleIds);
+        }
+
+        /// <inheritdoc />
+        public override int GetHashCode() => base.GetHashCode();
 
         private string DebuggerDisplay => $"{Name} ({Id})";
 

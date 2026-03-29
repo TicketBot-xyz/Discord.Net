@@ -256,17 +256,34 @@ public partial class DiscordSocketClient
 
                             var data = (payload as JToken).ToObject<API.Gateway.GuildEmojiUpdateEvent>(_serializer);
                             var guild = State.GetGuild(data.GuildId);
-                            if (guild != null)
-                            {
-                                var before = guild.Clone();
-                                guild.Update(State, data);
-                                await TimedInvokeAsync(_guildUpdatedEvent, nameof(GuildUpdated), before, guild).ConfigureAwait(false);
-                            }
-                            else
+                            if (guild == null)
                             {
                                 await UnknownGuildAsync(type, data.GuildId).ConfigureAwait(false);
                                 return;
                             }
+
+                            var oldEmotes = guild.Emotes;
+                            var newEmotes = data.Emojis.Select(x => x.ToEntity()).ToArray();
+
+                            guild.Update(State, data);
+
+                            var createdEmotes = newEmotes.Where(x => !oldEmotes.Any(y => y.Id == x.Id));
+                            var deletedEmotes = oldEmotes.Where(x => !newEmotes.Any(y => y.Id == x.Id));
+                            var updatedEmotes = newEmotes.Select(x =>
+                            {
+                                var old = oldEmotes.FirstOrDefault(y => y.Id == x.Id);
+                                if (old == null || old.Equals(x))
+                                    return null;
+
+                                return (Old: old, New: x) as (GuildEmote Old, GuildEmote New)?;
+                            }).Where(x => x.HasValue).Select(x => x.Value).ToArray();
+
+                            foreach (var emote in createdEmotes)
+                                await TimedInvokeAsync(_guildEmojiCreated, nameof(GuildEmojiCreated), emote, guild).ConfigureAwait(false);
+                            foreach (var emote in deletedEmotes)
+                                await TimedInvokeAsync(_guildEmojiDeleted, nameof(GuildEmojiDeleted), emote, guild).ConfigureAwait(false);
+                            foreach (var pair in updatedEmotes)
+                                await TimedInvokeAsync(_guildEmojiUpdated, nameof(GuildEmojiUpdated), pair.Old, pair.New, guild).ConfigureAwait(false);
                         }
                         break;
                         case "GUILD_SYNC":

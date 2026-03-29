@@ -920,6 +920,39 @@ namespace Discord.WebSocket
         internal readonly AsyncEvent<Func<SocketCustomSticker, Task>> _guildStickerDeleted = new AsyncEvent<Func<SocketCustomSticker, Task>>();
         #endregion
 
+        #region Guild Emojis
+
+        /// <summary>
+        ///     Fired when an emoji in a guild is created.
+        /// </summary>
+        public event Func<GuildEmote, SocketGuild, Task> GuildEmojiCreated
+        {
+            add { _guildEmojiCreated.Add(value); }
+            remove { _guildEmojiCreated.Remove(value); }
+        }
+        internal readonly AsyncEvent<Func<GuildEmote, SocketGuild, Task>> _guildEmojiCreated = new AsyncEvent<Func<GuildEmote, SocketGuild, Task>>();
+
+        /// <summary>
+        ///     Fired when an emoji in a guild is updated.
+        /// </summary>
+        public event Func<GuildEmote, GuildEmote, SocketGuild, Task> GuildEmojiUpdated
+        {
+            add { _guildEmojiUpdated.Add(value); }
+            remove { _guildEmojiUpdated.Remove(value); }
+        }
+        internal readonly AsyncEvent<Func<GuildEmote, GuildEmote, SocketGuild, Task>> _guildEmojiUpdated = new AsyncEvent<Func<GuildEmote, GuildEmote, SocketGuild, Task>>();
+
+        /// <summary>
+        ///     Fired when an emoji in a guild is deleted.
+        /// </summary>
+        public event Func<GuildEmote, SocketGuild, Task> GuildEmojiDeleted
+        {
+            add { _guildEmojiDeleted.Add(value); }
+            remove { _guildEmojiDeleted.Remove(value); }
+        }
+        internal readonly AsyncEvent<Func<GuildEmote, SocketGuild, Task>> _guildEmojiDeleted = new AsyncEvent<Func<GuildEmote, SocketGuild, Task>>();
+        #endregion
+
         #region Webhooks
 
         /// <summary>
